@@ -1,191 +1,217 @@
-## 🌍 NO2 Satellite Data Downscaling Application
+# Air Quality Intelligence Platform
 
-### Project Overview
-An AI/ML-powered Streamlit application that converts coarse-resolution satellite NO2 measurements into fine-resolution maps. It leverages standard Python data science libraries, persists uploaded data in a database, visualizes inputs and outputs with interactive charts, and reports model performance metrics.
+An AI-powered environmental monitoring platform that transforms coarse-resolution satellite NO₂ data into high-resolution air quality maps using machine learning.
 
-Primary users: researchers, environmental agencies, and policy makers who need neighborhood-level air quality insights.
+## Project Overview
 
-Key goals:
-- Generate high-resolution NO2 maps from coarse satellite rasters
-- Validate results with independent ground station data
-- Provide an intuitive, end-to-end workflow in the browser
+The Air Quality Intelligence Platform uses satellite-derived NO₂ observations and machine learning techniques to generate enhanced air-quality maps with improved spatial resolution.
 
----
+The application provides an interactive dashboard where users can:
 
-## 🔧 Tech Stack
+- Upload satellite NO₂ datasets
+- Process and clean environmental data
+- Generate downscaled air-quality maps
+- Visualize pollution patterns
+- Evaluate model performance
+- Download prediction results
 
-- Frontend framework: Streamlit (Python-based UI)
-- Visualization: Plotly (interactive maps/charts), custom CSS (`styles.css`)
-- Geospatial IO: Rasterio (reads GeoTIFFs)
-- Data processing: NumPy, Pandas
-- Machine learning: scikit-learn (Random Forest, scaling, train/validation split)
-- Database/ORM: SQLAlchemy (default SQLite; optional PostgreSQL via `psycopg2-binary`)
-- Config: Environment variables (optional), but defaults provided (no `.env` required)
-- Python version: 3.11+ (tested on 3.13)
+This project is designed for environmental researchers, students, policy makers, and organizations interested in air-quality monitoring.
 
 ---
 
-## 🧭 Architecture
+## Features
 
-- `main.py`: Streamlit app
-  - Uploads satellite GeoTIFF and ground CSV
-  - Handles missing data interpolation
-  - Trains model and generates downscaled map
-  - Visualizes original and downscaled maps
-  - Computes MSE, RMSE, R²; offers CSV download
-  - Initializes DB and saves satellite/ground data
-
-- `model.py`: NO2DownscalingModel
-  - Prepares spatial features (normalized i/j positions + NO2 value)
-  - Trains `RandomForestRegressor`
-  - Predicts on a higher-resolution grid (configurable scale factor)
-
-- `utils.py`: Utilities
-  - `load_satellite_data` (rasterio), `load_ground_data` (pandas CSV)
-  - `handle_missing_data` (interpolation or mean-fill)
-  - `create_no2_map` (Plotly imshow)
-  - `calculate_metrics` (MSE, RMSE, R²)
-  - DB helpers to save satellite pixels and ground rows
-
-- `database.py`: SQLAlchemy models and session
-  - Models: `SatelliteData`, `GroundMeasurement`
-  - Uses `DATABASE_URL` if set; otherwise defaults to SQLite `sqlite:///./no2_data.db`
-  - `init_db()` creates tables on startup
-
-- `styles.css`: Custom styling for Streamlit layout
+- Satellite NO₂ data analysis
+- Machine Learning based downscaling
+- Interactive Plotly visualizations
+- GeoTIFF support
+- Ground station data integration
+- Performance metrics (RMSE, R², MSE)
+- Streamlit web dashboard
+- Database-backed storage
 
 ---
 
-## 📂 Project Structure
+## Technology Stack
 
-```
-scale/
-├── main.py              # Streamlit app entry
-├── model.py             # ML model (Random Forest downscaling)
-├── utils.py             # IO, preprocessing, metrics, plotting
-├── database.py          # SQLAlchemy models + engine/session
-├── styles.css           # UI styles
-├── pyproject.toml       # Dependencies
-├── README.md            # Documentation (this file)
-└── no2_data.db          # SQLite DB (auto-created)
-```
+### Frontend
+- Streamlit
 
----
+### Data Processing
+- NumPy
+- Pandas
 
-## ▶️ Running the App
+### Visualization
+- Plotly
 
-Prerequisites:
+### Machine Learning
+- Scikit-learn
+- Random Forest Regressor
+
+### Geospatial Processing
+- Rasterio
+
+### Database
+- SQLite
+- SQLAlchemy
+
+### Python Version
 - Python 3.11+
 
+---
+
+## Project Structure
+
+```text
+Air-Quality-Intelligence-Platform/
+│
+├── main.py
+├── model.py
+├── utils.py
+├── database.py
+├── styles.css
+├── pyproject.toml
+├── README.md
+│
+└── no2_data.db (generated automatically)
+```
+
+---
+
+## Machine Learning Workflow
+
+```text
+Satellite NO₂ Data
+        │
+        ▼
+Data Cleaning
+        │
+        ▼
+Feature Engineering
+        │
+        ▼
+Random Forest Model
+        │
+        ▼
+High Resolution Prediction
+        │
+        ▼
+Interactive Visualization
+```
+
+---
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/Vishwas-Rampur/Air-Quality-Intelligence-Platform.git
+```
+
+Navigate to the project:
+
+```bash
+cd Air-Quality-Intelligence-Platform
+```
+
+Create a virtual environment:
+
+```bash
+py -m venv .venv
+```
+
+Activate the environment:
+
+```bash
+.venv\Scripts\activate
+```
+
 Install dependencies:
+
 ```bash
 pip install numpy pandas plotly psycopg2-binary python-dotenv rasterio scikit-learn sqlalchemy streamlit
 ```
 
-Run:
+Run the application:
+
 ```bash
 python -m streamlit run main.py
 ```
 
-Open in a browser:
-- Local: http://localhost:8501
+Open:
 
-Notes:
-- No `.env` file is required. The app defaults to SQLite at `sqlite:///./no2_data.db`.
-- If you want PostgreSQL, set `DATABASE_URL` (e.g., `postgresql+psycopg2://user:pass@host/db`).
-
----
-
-## 📥 Using the App
-
-1) Upload Satellite GeoTIFF
-- The app reads band 1 via rasterio and extracts pixel values, transform, and CRS
-- Missing values are interpolated by default
-- Original map is displayed (Plotly)
-- Pixels are saved to DB (`SatelliteData`) with timestamp/lat/lon/value/resolution
-
-2) (Optional) Upload Ground CSV
-- Expected columns: `latitude`, `longitude`, `no2_value`, `station_name` (optional)
-- Saved to DB as `GroundMeasurement`
-
-3) Train & Downscale
-- The model prepares features: normalized row/col + value
-- Trains a Random Forest and validates on a holdout split
-- Predicts on a higher-resolution grid (default 2x)
-- Displays the downscaled map
-
-4) Metrics & Download
-- Shows MSE, RMSE, and R²
-- Provides a CSV download of the downscaled grid
+```text
+http://localhost:8501
+```
 
 ---
 
-## 🤖 Machine Learning Details
+## Usage
 
-- Algorithm: `RandomForestRegressor(n_estimators=100, max_depth=10, random_state=42)`
-- Features per pixel:
-  - `row_index / rows`, `col_index / cols`, original NO2 value
-- Train/validation: `train_test_split(test_size=0.2, random_state=42)`
-- Scaling: `StandardScaler` on features
-- Prediction grid: generated with meshgrid at `scale_factor` resolution
+### Step 1
+Upload a satellite NO₂ GeoTIFF file.
 
-Limitations & Considerations:
-- The current model uses only simple spatial coordinates + value as features. You can extend with topography, land use, meteorology, etc.
-- Interpolation strategy for missing data can be swapped as needed.
-- Validation uses a simple random split; spatial CV could be more appropriate.
+### Step 2
+(Optional) Upload ground station measurements in CSV format.
 
----
+### Step 3
+Run the machine learning downscaling process.
 
-## 🗃️ Database Schema
+### Step 4
+Visualize the generated high-resolution pollution map.
 
-- `SatelliteData`
-  - `id`, `timestamp`, `latitude`, `longitude`, `no2_value`, `resolution`, `source`
-- `GroundMeasurement`
-  - `id`, `timestamp`, `latitude`, `longitude`, `no2_value`, `station_name`, `satellite_data_id`
-
-Default engine: SQLite (file `no2_data.db`). To switch to PostgreSQL, set `DATABASE_URL`.
+### Step 5
+Review model performance metrics and download results.
 
 ---
 
-## 📊 Data Sources
+## Supported Data Sources
 
-Satellite NO2 (daily tropospheric):
-- TROPOMI/Sentinel-5P (Swath): https://search.earthdata.nasa.gov/search/granules?p=C2089270961-GES_DISC
-- TROPOMI/Sentinel-5P (GEE, gridded GeoTIFF): https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_S5P_OFFL_L3_NO2
-- OMI/Aura (gridded): https://search.earthdata.nasa.gov/search/granules?p=C1266136111GES_DISC
-- OMI/Aura (alternate): https://measures.gesdisc.eosdis.nasa.gov/data/MINDS/OMI_MINDS_NO2d.1.1/2024/
+### Satellite Data
 
-Ground measurements:
-- CPCB (India): https://app.cpcbccr.com/ccr/#/caaqm-dashboard-all/caaqmlanding
+- Sentinel-5P (TROPOMI)
+- NASA EarthData
+- OMI Aura
 
----
+### Ground Measurements
 
-## 🛠️ Troubleshooting
-
-- Streamlit not found: run via `python -m streamlit run main.py`.
-- SQLAlchemy error on Python 3.13: ensure SQLAlchemy ≥ 2.0.43.
-- `.env` UnicodeDecodeError: the app no longer requires `.env`. Remove it or ensure it is UTF‑8 if you add one.
-- "table already exists": harmless; created earlier. SQLite keeps the table.
+- CPCB Air Quality Stations
+- Local monitoring stations
 
 ---
 
-## 🚀 Roadmap
+## Performance Metrics
 
-- Add alternative models (XGBoost, CNN)
-- Spatial cross-validation
-- Additional features (meteorology, land use)
-- Export GeoTIFF of downscaled output
-- API endpoints for batch processing
+The platform evaluates prediction quality using:
+
+- Mean Squared Error (MSE)
+- Root Mean Squared Error (RMSE)
+- R² Score
 
 ---
 
-## 📄 License
+## Future Improvements
+
+- XGBoost integration
+- Deep Learning models
+- Real-time satellite ingestion
+- Weather data integration
+- Interactive GIS maps
+- Automated reporting
+- Cloud deployment
+
+---
+
+## Author
+
+**Vishwas Rampur**
+
+GitHub:
+https://github.com/Vishwas-Rampur
+
+---
+
+## License
 
 MIT License
-
----
-
-## 🙏 Acknowledgements
-
-Thanks to NASA/ESA/CPCB datasets and the Python open-source ecosystem (Streamlit, scikit-learn, Plotly, SQLAlchemy, Rasterio, NumPy, Pandas).
-
